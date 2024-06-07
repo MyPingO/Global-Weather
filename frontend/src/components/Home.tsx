@@ -24,6 +24,7 @@ if (!googleMapsApiKey) {
 
 const Home: React.FC = () => {
     const [selectedPosition, setSelectedPosition] = useState<{ lat: number, lng: number } | null>(null);
+    const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
     const [weatherData, setWeatherData] = useState<any>(null);
     const [loading, setLoading] = useState(false);
     const [searchBox, setSearchBox] = useState<google.maps.places.SearchBox | null>(null);
@@ -34,6 +35,7 @@ const Home: React.FC = () => {
         if (lat && lng) {
             setSelectedPosition({ lat, lng });
             fetchWeatherData(lat, lng);
+            fetchPlaceName(lat, lng);
         }
     };
 
@@ -58,6 +60,30 @@ const Home: React.FC = () => {
         }
     };
 
+    const fetchPlaceName = async (lat: number, lng: number) => {
+        const geocoder = new google.maps.Geocoder();
+        const response = await geocoder.geocode({ location: { lat, lng } });
+        console.log('Geocoder response:', response);
+        let component;
+        component = response.results.find((result) => result.types.includes("administrative_area_level_2")) || response.results[0];
+        if (component) {
+            setSelectedPlace(component.formatted_address);
+        }
+        else {
+            component = response.results.find((result) => result.types.includes("postal_code")) || response.results[0];
+            if (component) {
+                setSelectedPlace(component.formatted_address);
+            }
+            else {
+                component = response.results.find((result) => result.types.includes("locality")) || response.results[0];
+                if (component) {
+                    setSelectedPlace(component.formatted_address);
+                }
+                else setSelectedPlace('Unknown place');
+            }
+        }
+    };
+
     const onLoad = (ref: google.maps.places.SearchBox) => {
         setSearchBox(ref);
     };
@@ -70,6 +96,7 @@ const Home: React.FC = () => {
             const lng = place.geometry?.location?.lng();
             if (lat && lng) {
                 setSelectedPosition({ lat, lng });
+                setSelectedPlace(place.formatted_address || 'Unknown place');
                 fetchWeatherData(lat, lng);
             }
         }
@@ -101,6 +128,7 @@ const Home: React.FC = () => {
                     </GoogleMap>
                 </LoadScript>
             </div>
+            {selectedPlace && <h5 className="text-center mb-4">Selected Location: {selectedPlace}</h5>}
             {loading ? <WeatherSkeleton /> : weatherData && <WeatherDetails weatherData={weatherData} />}
         </div>
     );
