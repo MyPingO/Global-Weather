@@ -1,9 +1,10 @@
 // src/components/WeatherSkeleton.tsx
 import React from 'react';
+import "../css/Animations.css";
 
 const WeatherSkeleton: React.FC = () => {
     return (
-        <div className="row">
+        <div className="row fade-in" style={{animationDuration: "0.25s"}}>
             {[...Array(8)].map((_, index) => (
                 <div className="col-md-3 mb-3" key={index}>
                     <div className="card">

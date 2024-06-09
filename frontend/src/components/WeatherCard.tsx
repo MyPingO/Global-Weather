@@ -1,17 +1,18 @@
 import React from 'react';
 import weatherIconCodeMap from './weatherIcons';
 
-const WeatherCard: React.FC<{ data: any }> = ({ data }) => {
+const WeatherCard: React.FC<{ data: any, isMetric: boolean, convertTemperature: (temp: number, isMetric: boolean) => number, convertWindSpeed: (speed: number, isMetric: boolean) => number }> = ({ data, isMetric, convertTemperature, convertWindSpeed }) => {
     const date = new Date(data.dt * 1000);
     const dayName = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
     const temperature = Math.round(data.temp.day);
+    const temperatureUnit = isMetric ? 'C' : 'F';
     const weatherDescription = data.weather[0].description;
-    const tempMin = Math.round(data.temp.min);
-    const tempMax = Math.round(data.temp.max);
+    const tempMin = Math.round(convertTemperature(data.temp.min, isMetric));
+    const tempMax = Math.round(convertTemperature(data.temp.max, isMetric));
     const humidity = data.humidity;
-    const windSpeed = Math.round(data.wind_speed);
+    const windSpeed = Math.round(convertWindSpeed(data.wind_speed, isMetric));
+    const windSpeedMetric = isMetric ? 'm/s' : 'mph';
     const windDeg = data.wind_deg;
-    const pressure = data.pressure;
     const uvi = data.uvi;
     const sunrise = new Date(data.sunrise * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     const sunset = new Date(data.sunset * 1000).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
@@ -33,53 +34,57 @@ const WeatherCard: React.FC<{ data: any }> = ({ data }) => {
     })();
 
     // Bootstrap icon classes
-    const humidityIcon = `bi bi-droplet text-primary`;
-    const windSpeedIcon = `bi bi-wind text-primary`;
-    const windDirectionIcon = `bi bi-arrow-up-right-circle text-primary`;
-    const pressureIcon = `bi bi-speedometer2 text-primary`;
-    const visibilityIcon = `bi bi-eye text-primary`;
-    const uviIcon = `bi bi-sun text-primary`;
-    const sunriseIcon = `bi bi-sunrise text-primary`;
-    const sunsetIcon = `bi bi-sunset text-primary`;
+    const tempMaxIcon = `bi bi-thermometer-sun`;
+    const tempMinIcon = `bi bi-thermometer-snow`;
+    const tempAvgIcon = `bi bi-thermometer-half`;
+    const humidityIcon = `bi bi-droplet`;
+    const windSpeedIcon = `bi bi-wind`;
+    const windDirectionIcon = `bi bi-arrow-up-right-circle`;
+    const uviIcon = `bi bi-sun`;
+    const sunriseIcon = `bi bi-sunrise`;
+    const sunsetIcon = `bi bi-sunset`;
 
     return (
         <div className="card bg-light text-dark h-100 shadow-sm">
             <div className="card-header text-center">
                 <h5 className="card-title mb-0">{dayName}</h5>
             </div>
-            <div className="card-img-top p-3 text-center">
-                <i className={`${weatherIconClass} display-1`} style={{ color: iconColor }}></i>
+            <div className="card-img-top d-flex justify-content-center align-items-end p-3" style={{ paddingBottom: 0 }}>
+                <i className={`${weatherIconClass} display-1`} style={{ color: iconColor, lineHeight: 0, verticalAlign: 'bottom' }}></i>
             </div>
             <div className="card-body">
                 <h6 className="card-subtitle mb-2 text-muted text-center">{weatherDescription}</h6>
                 <div className="d-flex justify-content-around">
-                    <div>
-                        <strong>{tempMax}°C</strong>
-                        <div>Max</div>
+                    <div className="text-center">
+                        <i className={tempMaxIcon} style={{ color: "#ff6947" }}></i>
+                        <div>{tempMax}°{temperatureUnit}</div>
+                        <small>Max</small>
                     </div>
-                    <div>
-                        <strong>{tempMin}°C</strong>
-                        <div>Min</div>
+                    <div className="text-center">
+                        <i className={tempMinIcon} style={{ color: "#77c4e0" }}></i>
+                        <div>{tempMin}°{temperatureUnit}</div>
+                        <small>Min</small>
                     </div>
-                    <div>
-                        <strong>{temperature}°C</strong>
-                        <div>Avg</div>
+                    <div className="text-center">
+                        <i className={tempAvgIcon} style={{ color: "#000000" }}></i>
+                        <div>{temperature}°{temperatureUnit}</div>
+                        <small>Avg</small>
                     </div>
                 </div>
                 <hr />
                 <div className="d-flex justify-content-around">
                     <div className="text-center">
-                        <i className={humidityIcon}></i>
+                        <i className={humidityIcon} style={{ color: "#00b3ff" }}></i>
                         <div>{humidity}%</div>
                         <small>Humidity</small>
                     </div>
                     <div className="text-center">
-                        <i className={windSpeedIcon}></i>
-                        <div>{windSpeed} m/s</div>
+                        <i className={windSpeedIcon} style={{ color: "#7d7d7d" }}></i>
+                        <div>{windSpeed} {windSpeedMetric}</div>
                         <small>Wind Speed</small>
                     </div>
                     <div className="text-center">
-                        <i className={windDirectionIcon} style={{ transform: `rotate(${windDeg}deg)` }}></i>
+                        <i className={windDirectionIcon} style={{ transform: `rotate(${windDeg}deg)`, color: "#22c94f" }}></i>
                         <div>{windDeg}°</div>
                         <small>Wind Dir</small>
                     </div>
@@ -87,17 +92,17 @@ const WeatherCard: React.FC<{ data: any }> = ({ data }) => {
                 <hr />
                 <div className="d-flex justify-content-around">
                     <div className="text-center">
-                        <i className={uviIcon}></i>
+                        <i className={uviIcon} style={{ color: "#7700ff" }}></i>
                         <div>{uvi}</div>
                         <small>UV Index</small>
                     </div>
                     <div className="text-center">
-                        <i className={sunriseIcon}></i>
+                        <i className={sunriseIcon} style={{ color: "#ffbb00" }}></i>
                         <div>{sunrise}</div>
                         <small>Sunrise</small>
                     </div>
                     <div className="text-center">
-                        <i className={sunsetIcon}></i>
+                        <i className={sunsetIcon} style={{ color: "#ff9900" }}></i>
                         <div>{sunset}</div>
                         <small>Sunset</small>
                     </div>
