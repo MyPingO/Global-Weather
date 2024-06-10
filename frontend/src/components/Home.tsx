@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { GoogleMap, Marker, StandaloneSearchBox, useJsApiLoader } from '@react-google-maps/api';
 import WeatherDetails from './WeatherDetails';
+import '../css/Home.css';
 
 const mapContainerStyle = {
     height: '400px',
     width: '100%',
-    boxShadow: '0 4px 16px 1px rgba(0, 0, 0, 0.25)',
+    boxShadow: '0 4px 4px 1px rgba(0, 0, 0, 0.25)',
+    outline: 'none'
 };
 
 const backendURL = process.env.REACT_APP_BACKEND_URL;
@@ -125,60 +127,62 @@ const Home: React.FC = () => {
     };
 
     const convertWindSpeed = (speed: number, isMetric: boolean) => {
-        return isMetric ? speed : speed * 3.6;
+        return isMetric ? speed : speed * 2.237;
     }
 
-    const { isLoaded } = useJsApiLoader({
+    const { isLoaded: mapLoaded } = useJsApiLoader({
         googleMapsApiKey: googleMapsApiKey,
         libraries: ['places']
     });
 
     return (
         <div className="container">
-            <h1 className="text-center my-4">Global Weather</h1>
             <div className="mb-1">
-                {isLoaded && <>
-                    <StandaloneSearchBox
-                        onLoad={onLoad}
-                        onPlacesChanged={onPlacesChanged}
-                    >
-                        <input
-                            type="text"
-                            placeholder="Search for places"
-                            className="form-control mb-3"
-                            style={{ boxSizing: 'border-box', width: '100%', padding: '10px', borderRadius: '5px' }}
-                        />
-                    </StandaloneSearchBox>
-                    <GoogleMap
-                        mapContainerStyle={mapContainerStyle}
-                        center={center}
-                        zoom={zoom}
-                        onClick={handleMapClick}
-                    >
-                        {selectedPosition && <Marker position={selectedPosition} />}
-                    </GoogleMap>
-                </>
+                {mapLoaded &&
+                    <div className="fade-in" style={{ animationDuration: ".5s" }}>
+                        <StandaloneSearchBox
+                            onLoad={onLoad}
+                            onPlacesChanged={onPlacesChanged}
+                        >
+                            <input
+                                type="text"
+                                placeholder="Search for places"
+                                className="form-control mb-3"
+                                style={{ boxSizing: 'border-box', width: '100%', padding: '10px', borderRadius: '5px' }}
+                            />
+                        </StandaloneSearchBox>
+                        <GoogleMap
+                            mapContainerStyle={mapContainerStyle}
+                            center={center}
+                            zoom={zoom}
+                            onClick={handleMapClick}
+                        >
+                            {selectedPosition && <Marker position={selectedPosition} />}
+                        </GoogleMap>
+                        {selectedPlace &&
+                            <div className="fade-in mt-3" style={{ animationDuration: ".5s" }}>
+                                <div className="form-check form-switch" style={{ outline: "none" }}>
+                                    <input
+                                        className="form-check-input"
+                                        type="checkbox"
+                                        id="unitToggle"
+                                        checked={isMetric}
+                                        onChange={toggleUnit}
+                                        style={{ outline: 'none', boxShadow: 'none' }}
+                                    />
+                                    <label className="form-check-label" htmlFor="unitToggle">Toggle Metric Units</label>
+                                </div>
+                            </div>
+                        }
+                    </div>
                 }
-            </div>
-            <div className='mt-3'>
-                <div className="form-check form-switch" style={{ outline: "none" }}>
-                    <input
-                        className="form-check-input"
-                        type="checkbox"
-                        id="unitToggle"
-                        checked={isMetric}
-                        onChange={toggleUnit}
-                        style={{ outline: 'none', boxShadow: 'none' }}
-                    />
-                    <label className="form-check-label" htmlFor="unitToggle">Toggle Metric Units</label>
-                </div>
             </div>
             <div className={loading ? "fade-out" : "fade-in"} style={{ animationDuration: loading ? ".1s" : ".5s" }}>
                 {selectedPlace && <h5 className="text-center mb-4">{selectedPlace}</h5>}
             </div>
             {/* {loading ? <WeatherSkeleton /> : weatherData && <WeatherDetails weatherData={weatherData} unit={unit} convertTemperature={convertTemperature} />} */}
             <div className={loading ? "fade-out" : "fade-in"} style={{ animationDuration: loading ? ".1s" : ".5s" }}>
-                {weatherData && <WeatherDetails weatherData={weatherData} isMetric={isMetric} convertTemperature={convertTemperature} convertWindSpeed={convertWindSpeed}/>}
+                {weatherData && !loading && <WeatherDetails weatherData={weatherData} isMetric={isMetric} convertTemperature={convertTemperature} convertWindSpeed={convertWindSpeed} />}
             </div>
         </div>
     );

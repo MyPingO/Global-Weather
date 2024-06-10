@@ -4,7 +4,7 @@ import weatherIconCodeMap from './weatherIcons';
 const WeatherCard: React.FC<{ data: any, isMetric: boolean, convertTemperature: (temp: number, isMetric: boolean) => number, convertWindSpeed: (speed: number, isMetric: boolean) => number }> = ({ data, isMetric, convertTemperature, convertWindSpeed }) => {
     const date = new Date(data.dt * 1000);
     const dayName = date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-    const temperature = Math.round(data.temp.day);
+    const temperature = Math.round(convertTemperature(data.temp.day, isMetric));
     const temperatureUnit = isMetric ? 'C' : 'F';
     const weatherDescription = data.weather[0].description;
     const tempMin = Math.round(convertTemperature(data.temp.min, isMetric));

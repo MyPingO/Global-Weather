@@ -2,7 +2,6 @@ from dotenv import load_dotenv
 load_dotenv()
 # Print frontend URL to test if environment variables are loaded
 
-import os
 import uvicorn
 from fastapi import FastAPI
 from backend.routes import router
