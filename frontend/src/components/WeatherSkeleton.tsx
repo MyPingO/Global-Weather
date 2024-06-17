@@ -1,6 +1,5 @@
 // src/components/WeatherSkeleton.tsx
 import React from 'react';
-import "../css/Animations.css";
 
 const WeatherSkeleton: React.FC = () => {
     return (
